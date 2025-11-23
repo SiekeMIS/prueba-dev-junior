@@ -44,9 +44,13 @@ $bodegas = $stmt->fetchAll();
 <body>
     <h1>Listado de Bodegas (test de conexión)</h1>
 
+        <a href="crear_bodega.php">Crear nueva bodega</a>
+    <br><br>
+
     <?php if (empty($bodegas)): ?>
         <p>No hay bodegas registradas.</p>
     <?php else: ?>
+        
         <table border="1" cellpadding="8" cellspacing="0">
             <thead>
                 <tr>

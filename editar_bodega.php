@@ -3,6 +3,10 @@ require_once 'db.php';
 
 $pdo = getConnection();
 
+// Inicializar variables de error
+$errores = [];
+$error   = null;
+
 // Verificar si viene un ID por GET
 if (!isset($_GET['id'])) {
     die("ID de bodega no especificado.");
@@ -18,13 +22,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $direccion = $_POST['direccion'] ?? '';
     $dotacion  = $_POST['dotacion'] ?? 0;
     $estado    = $_POST['estado'] ?? 'Activada';
+    $encargadosSeleccionados = $_POST['encargados'] ?? [];
 
-    // Esto viene como array (porque el select será multiple)
-    $encargadosSeleccionados = $_POST['encargados'] ?? []; // puede ser []
+    // VALIDACIONES PERSONALIZADAS
+    if (strlen($codigo) > 5) {
+        $errores[] = "El código no puede tener más de 5 caracteres.";
+    }
+
+    if (strlen($nombre) > 100) {
+        $errores[] = "El nombre no puede tener más de 100 caracteres.";
+    }
 
     if (empty($codigo) || empty($nombre) || empty($direccion)) {
-        $error = "Todos los campos son obligatorios.";
-    } else {
+        $errores[] = "Todos los campos obligatorios deben estar completos.";
+    }
+
+    // Si no hay errores → ejecutamos UPDATE + transacción
+    if (empty($errores)) {
         try {
             // Usamos transacción para que todo quede coherente
             $pdo->beginTransaction();
@@ -50,12 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 2) Actualizar encargados asociados a la bodega
 
-            // Borrar relaciones anteriores
             $sqlDelete = "DELETE FROM bodega_encargado WHERE id_bodega = :id_bodega";
             $stmtDelete = $pdo->prepare($sqlDelete);
             $stmtDelete->execute([':id_bodega' => $id]);
 
-            // Insertar nuevas relaciones (si hay encargados seleccionados)
             if (!empty($encargadosSeleccionados)) {
                 $sqlInsert = "INSERT INTO bodega_encargado (id_bodega, id_encargado)
                               VALUES (:id_bodega, :id_encargado)";
@@ -78,17 +90,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->rollBack();
             $error = "Error al actualizar: " . $e->getMessage();
         }
+    } else {
+        // Si hay errores, usamos los valores del POST para que el formulario
+        // muestre lo que el usuario intentó guardar
+        $bodega = [
+            'codigo'    => $codigo,
+            'nombre'    => $nombre,
+            'direccion' => $direccion,
+            'dotacion'  => $dotacion,
+            'estado'    => $estado
+        ];
     }
 }
 
-// Obtener datos actuales de la bodega
-$sql = "SELECT * FROM bodega WHERE id_bodega = :id";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':id' => $id]);
-$bodega = $stmt->fetch();
+// Si no existe $bodega todavía (por ejemplo primera vez que se carga por GET), la obtenemos de la BD
+if (!isset($bodega)) {
+    $sql = "SELECT * FROM bodega WHERE id_bodega = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
+    $bodega = $stmt->fetch();
 
-if (!$bodega) {
-    die("No se encontró la bodega con ID $id.");
+    if (!$bodega) {
+        die("No se encontró la bodega con ID $id.");
+    }
 }
 
 // Obtener TODOS los encargados
@@ -114,27 +138,48 @@ $idsEncargadosDeBodega = array_column($encargadosDeBodega, 'id_encargado');
 <head>
     <meta charset="UTF-8">
     <title>Editar Bodega</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <script src="js/app.js" defer></script>
 </head>
 <body>
+<div class="container">
     <h1>Editar Bodega</h1>
 
-    <?php if (isset($error)): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+    <?php if (!empty($errores)): ?>
+        <div class="error-box">
+            <ul>
+                <?php foreach ($errores as $err): ?>
+                    <li><?= htmlspecialchars($err) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
     <?php endif; ?>
 
-    <form method="POST">
+    <?php if (!empty($error)): ?>
+        <div class="error-box">
+            <?= htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" class="crud-form">
 
         <label>Código:</label><br>
-        <input type="text" name="codigo" value="<?= htmlspecialchars($bodega['codigo']) ?>" required><br><br>
+        <input type="text" name="codigo"
+               maxlength="5"
+               value="<?= htmlspecialchars($bodega['codigo']) ?>" required><br><br>
 
         <label>Nombre:</label><br>
-        <input type="text" name="nombre" value="<?= htmlspecialchars($bodega['nombre']) ?>" required><br><br>
+        <input type="text" name="nombre"
+               maxlength="100"
+               value="<?= htmlspecialchars($bodega['nombre']) ?>" required><br><br>
 
         <label>Dirección:</label><br>
-        <input type="text" name="direccion" value="<?= htmlspecialchars($bodega['direccion']) ?>" required><br><br>
+        <input type="text" name="direccion"
+               value="<?= htmlspecialchars($bodega['direccion']) ?>" required><br><br>
 
         <label>Dotación:</label><br>
-        <input type="number" min="0" name="dotacion" value="<?= htmlspecialchars($bodega['dotacion']) ?>" required><br><br>
+        <input type="number" min="0" name="dotacion"
+               value="<?= htmlspecialchars($bodega['dotacion']) ?>" required><br><br>
 
         <label>Estado:</label><br>
         <select name="estado">
@@ -158,11 +203,10 @@ $idsEncargadosDeBodega = array_column($encargadosDeBodega, 'id_encargado');
         <br><small>Ctrl+click para seleccionar/deseleccionar múltiples.</small>
         <br><br>
 
-        <button type="submit">Guardar cambios</button>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
     </form>
 
-    <br>
-    <a href="index.php">Volver</a>
-
+    <a href="index.php" class="back-link">← Volver al listado</a>
+</div>
 </body>
 </html>

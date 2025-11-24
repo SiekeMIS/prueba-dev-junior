@@ -1,7 +1,9 @@
 <?php
 require_once 'db.php';
 
-// Si el formulario viene enviado por POST
+$errores = [];
+$error = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $codigo    = $_POST['codigo'] ?? '';
@@ -10,11 +12,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dotacion  = $_POST['dotacion'] ?? 0;
     $estado    = $_POST['estado'] ?? 'Activada';
 
-    // Validaciones básicas (puedes agregar más)
-    if (empty($codigo) || empty($nombre) || empty($direccion)) {
-        $error = "Todos los campos son obligatorios.";
-    } else {
+    // Validaciones personalizadas
+    $errores = [];
 
+    if (strlen($codigo) > 5) {
+        $errores[] = "El código no puede tener más de 5 caracteres.";
+    }
+
+    if (strlen($nombre) > 100) {
+        $errores[] = "El nombre no puede tener más de 100 caracteres.";
+    }
+
+    if (empty($codigo) || empty($nombre) || empty($direccion)) {
+        $errores[] = "Todos los campos obligatorios deben estar completos.";
+    }
+
+    if (!empty($errores)) {
+        // No insertamos; sólo mostramos errores
+    } else {
         try {
             $pdo = getConnection();
 
@@ -31,12 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':estado'    => $estado
             ]);
 
-            // Redirige al listado
             header("Location: index.php");
             exit;
 
         } catch (PDOException $e) {
-            $error = "Error al guardar: " . $e->getMessage();
+            $error = "Error al guardar la bodega.";
         }
     }
 }
@@ -46,20 +60,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Crear Bodega</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <script src="js/app.js" defer></script>
 </head>
 <body>
+<div class="container">
     <h1>Crear nueva Bodega</h1>
 
-    <?php if (isset($error)): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+    <?php if (!empty($errores)): ?>
+        <div class="error-box">
+            <ul>
+                <?php foreach ($errores as $err): ?>
+                    <li><?= htmlspecialchars($err) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
     <?php endif; ?>
+
+    <?php if (!empty($error)): ?>
+        <div class="error-box">
+            <?= htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" class="crud-form">
+        
 
     <form method="POST">
         <label>Código:</label><br>
-        <input type="text" name="codigo" required><br><br>
+        <input type="text" name="codigo" maxlength="5" required><br><br>
 
         <label>Nombre:</label><br>
-        <input type="text" name="nombre" required><br><br>
+        <input type="text" name="nombre" maxlength="100" required><br><br>
 
         <label>Dirección:</label><br>
         <input type="text" name="direccion" required><br><br>
@@ -76,7 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit">Crear</button>
     </form>
 
-    <br>
-    <a href="index.php">Volver al listado</a>
+    <a href="index.php" class="back-link">← Volver al listado</a>
+</div>
+<script src="js/app.js"></script>
 </body>
+
 </html>

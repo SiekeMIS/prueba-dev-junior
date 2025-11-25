@@ -5,9 +5,9 @@ function getConnection()
 {
     $host = 'localhost';
     $port = '5432';
-    $dbname = 'empresa_bodegas'; // Nombre de tu BD en PostgreSQL
-    $user = 'dev_bodegas';       // Usuario que creaste
-    $password = 'theluk70';      // Tu contraseña actual
+    $dbname = 'empresa_bodegas'; // Nombre de la BD en PostgreSQL
+    $user = 'dev_bodegas';       // Usuario de la BD
+    $password = 'theluk70';      // La contraseña actual
 
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
 

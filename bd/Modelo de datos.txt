@@ -1,0 +1,42 @@
+CREATE TABLE encargado (
+    id_encargado SERIAL PRIMARY KEY,
+    run VARCHAR(12) NOT NULL UNIQUE,
+    nombre VARCHAR(50) NOT NULL,
+    primer_apellido VARCHAR(50) NOT NULL,
+    segundo_apellido VARCHAR(50),
+    direccion VARCHAR(255),
+    telefono VARCHAR(20)
+);
+
+CREATE TABLE bodega (
+    id_bodega SERIAL PRIMARY KEY,
+    codigo VARCHAR(5) NOT NULL UNIQUE,
+    nombre VARCHAR(100) NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
+    dotacion INTEGER NOT NULL CHECK (dotacion >= 0),
+    estado VARCHAR(15) NOT NULL CHECK (estado IN ('Activada', 'Desactivada')),
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE bodega_encargado (
+    id_bodega INTEGER NOT NULL REFERENCES bodega(id_bodega) ON DELETE CASCADE,
+    id_encargado INTEGER NOT NULL REFERENCES encargado(id_encargado) ON DELETE RESTRICT,
+    PRIMARY KEY (id_bodega, id_encargado)
+);
+
+INSERT INTO encargado (run, nombre, primer_apellido, segundo_apellido, direccion, telefono) VALUES
+('11.111.111-1', 'Ana', 'Pérez', 'González', 'Calle Falsa 123', '912345678'),
+('22.222.222-2', 'Juan', 'Soto', 'López', 'Av. Central 456', '987654321'),
+('33.333.333-3', 'Carla', 'Muñoz', 'Rojas', 'Calle 1', '911111111'),
+('44.444.444-4', 'Pedro', 'García', 'Lagos', 'Calle 2', '922222222');
+
+INSERT INTO bodega (codigo, nombre, direccion, dotacion, estado)
+VALUES
+('B01', 'Bodega Central', 'Parque Industrial 1000', 15, 'Activada'),
+('B02', 'Bodega Costera', 'Puerto 45', 8, 'Desactivada');
+
+INSERT INTO bodega_encargado (id_bodega, id_encargado) VALUES
+(1, 1),
+(1, 2), 
+(2, 2); 
+

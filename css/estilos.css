@@ -1,196 +1,78 @@
-/* ======== ESTILOS GENERALES ======== */
-* {
-    box-sizing: border-box;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+/* estilos mínimos y legibles para la app - reemplazar css/estilos.css */
+
+/* variables simples */
+:root{
+  --bg: #4a6b96;
+  --card: #ffffff;
+  --accent: #4859f3;
+  --muted: #4830d1;
+  --danger: #dc4035;
+  --radius: 8px;
+  --pad: 12px;
+  --btn-h: 34px;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    background: #f4f4f7;
-    color: #222;
+/* reset mínimo */
+*{
+  box-sizing: border-box;
+  font-family: system-ui, Segoe UI, Arial;
+  color: #111;
+}
+body{margin:0;background:var(--bg);padding:18px}
+
+/* contenedor principal */
+.container{
+  max-width:980px;
+  margin:22px auto;
+  background:var(--card);
+  padding:16px;
+  border-radius:var(--radius);
+  box-shadow:0 6px 18px rgba(15,20,40,0.05);
 }
 
-.container {
-    max-width: 1000px;
-    margin: 30px auto;
-    background: #ffffff;
-    padding: 20px 25px 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+/* título */
+h1{margin:0 0 12px 0;font-size:1.4rem;color:var(--accent)}
+
+/* filtros (compacto) */
+.filter-form{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border-radius:6px;background:#6feb78;margin-bottom:14px;font-weight: bold;}
+.filter-form input, .filter-form select{padding:5px;border:8px solid #3bb5ee;border-radius:100px}
+
+/* tabla */
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+thead{background:var(--accent);color:#fff}
+th,td{padding:8px;border-bottom:1px solid #eef0fb;text-align:left}
+tbody tr:nth-child(even){background:#fbfcff}
+tbody tr:hover{background:#eef3ff}
+
+/* botones (unificados en altura) */
+.btn{display:inline-flex;align-items:center;gap:8px;height:var(--btn-h);padding:0 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600;text-decoration:none}
+.btn svg{width:16px;height:16px;display:block}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:#3b9b53;color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-ghost{background:transparent;color:var(--accent)}
+
+/* grupo de acciones */
+.action-group{display:flex;gap:6px}
+.action-group .btn{padding:0 10px;height:30px;font-size:.87rem}
+
+/* formularios (CRUD) */
+.crud-form{max-width:520px}
+.crud-form input[type="text"], .crud-form input[type="number"], .crud-form select{width:100%;padding:8px;border:1px solid #d8dbe8;border-radius:6px;margin-bottom:10px}
+.crud-form select[multiple]{height:120px}
+
+/* mensajes de error */
+.error-box{background:#fff3f2;border:1px solid #ffcbc6;color:#7b1f1f;padding:10px;border-radius:8px;margin-bottom:12px}
+
+/* enlace volver */
+.back-link{display:inline-block;margin-top:12px}
+
+/* responsive simple */
+@media(max-width:720px){
+  .filter-form{flex-direction:column}
+  th,td{font-size:.88rem}
 }
 
-/* ======== TITULOS ======== */
-h1 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 1.7rem;
-    color: #222;
-}
-
-/* ======== ENLACES SUPERIORES ======== */
-.top-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-/* ======== FORMULARIO DE FILTRO ======== */
-.filter-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: flex-end;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #f0f2ff;
-    border-radius: 8px;
-}
-
-.filter-form label {
-    font-size: 0.9rem;
-    display: block;
-    margin-bottom: 3px;
-}
-
-.filter-form input[type="date"],
-.filter-form select {
-    padding: 5px 8px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-/* ======== TABLAS ======== */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 0.95rem;
-}
-
-thead {
-    background: #2f3c8f;
-    color: #fff;
-}
-
-th, td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #e1e1ec;
-    text-align: left;
-}
-
-tbody tr:nth-child(even) {
-    background: #f8f9ff;
-}
-
-tbody tr:hover {
-    background: #eef1ff;
-}
-
-/* ======== BOTONES / LINKS ======== */
-a {
-    color: #2f3c8f;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-.btn {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    font-size: 0.9rem;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.btn-primary {
-    background: #2f3c8f;
-    color: #fff;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: #fff;
-}
-
-.btn-danger {
-    background: #dc3545;
-    color: #fff;
-}
-
-.btn-ghost {
-    background: transparent;
-    color: #2f3c8f;
-}
-
-.btn + .btn {
-    margin-left: 5px;
-}
-
-/* ======== FORMULARIOS CRUD ======== */
-form.crud-form {
-    max-width: 500px;
-}
-
-form.crud-form label {
-    font-weight: 500;
-}
-
-form.crud-form input[type="text"],
-form.crud-form input[type="number"],
-form.crud-form select {
-    width: 100%;
-    padding: 7px 9px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    margin-bottom: 12px;
-}
-
-form.crud-form select[multiple] {
-    height: 120px;
-}
-
-/* ======== MENSAJES DE ERROR ======== */
-.error-box {
-    background: #ffe5e8;
-    border: 1px solid #ffb3be;
-    color: #8b1e30;
-    padding: 10px 12px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-}
-
-.error-box ul {
-    margin: 0;
-    padding-left: 18px;
-}
-
-/* ======== ENLACE VOLVER ======== */
-.back-link {
-    margin-top: 15px;
-    display: inline-block;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .container {
-        margin: 10px;
-        padding: 15px;
-    }
-
-    .filter-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    table {
-        font-size: 0.85rem;
-    }
+.colorsletra {
+    background-color: #649ce6;
 }

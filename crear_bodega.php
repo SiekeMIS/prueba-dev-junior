@@ -4,13 +4,16 @@ require_once 'db.php';
 $errores = [];
 $error = null;
 
+// Valor por defecto para el estado (cumple con el requerimiento)
+$estadoPorDefecto = 'Activada';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $codigo    = $_POST['codigo'] ?? '';
     $nombre    = $_POST['nombre'] ?? '';
     $direccion = $_POST['direccion'] ?? '';
     $dotacion  = $_POST['dotacion'] ?? 0;
-    $estado    = $_POST['estado'] ?? 'Activada';
+    $estado    = $_POST['estado'] ?? $estadoPorDefecto;  // Usa el valor por defecto
 
     // Validaciones personalizadas
     $errores = [];
@@ -83,10 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
+    <!-- ✅ SOLUCIÓN: Un solo formulario con la clase correcta -->
     <form method="POST" class="crud-form">
-        
-
-    <form method="POST">
         <label>Código:</label><br>
         <input type="text" name="codigo" maxlength="5" required><br><br>
 
@@ -101,7 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <label>Estado:</label><br>
         <select name="estado">
-            <option value="Activada">Activada</option>
+            <!-- ✅ SOLUCIÓN: "Activada" seleccionada por defecto -->
+            <option value="Activada" selected>Activada</option>
             <option value="Desactivada">Desactivada</option>
         </select><br><br>
 
@@ -112,5 +114,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script src="js/app.js"></script>
 </body>
-
 </html>
